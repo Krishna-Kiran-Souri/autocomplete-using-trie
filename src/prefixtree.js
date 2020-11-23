@@ -1,18 +1,17 @@
-class TrieNode{
-  constructor(letter){
-      this.letter=letter;
-      this.isWord=false;
-      this.children={};
+class TrieNode {
+  constructor(letter) {
+    this.letter = letter;
+    this.isWord = false;
+    this.children = {};
   }
-
 }
 export default class Trie {
   constructor() {
-    this.root = new TrieNode('');
+    this.root = new TrieNode("");
   }
 
   insert(word) {
-    if (!word) { 
+    if (!word) {
       return;
     }
     let curr = this.root;
@@ -25,11 +24,13 @@ export default class Trie {
       if (i === word.length - 1) {
         curr.isWord = true;
       }
-    };
+    }
   }
 
   search(fragment) {
-    if (!fragment) { return; }
+    if (!fragment) {
+      return;
+    }
     let curr = this.root;
     for (let i = 0; i < fragment.length; i++) {
       const c = fragment[i];
@@ -43,10 +44,30 @@ export default class Trie {
     }
     return false;
   }
-
-  autocomplete(fragment) {
-    if (!fragment) { return; }
+  auto(curr, fragment) {
     let result = [];
+    const queue = [];
+    queue.push([curr, fragment]);
+    console.log(queue);
+    while (queue.length) {
+      const element = queue.shift();
+      const node = element[0];
+      const word = element[1];
+      if (node.isWord) {
+        result.push(word);
+      }
+      for (const j in node.children) {
+        const child = node.children[j];
+        queue.push([child, word + child.letter]);
+      }
+    }
+    return result;
+  }
+  autocomplete(fragment) {
+    if (!fragment) {
+      return;
+    }
+
     let curr = this.root;
     for (let i = 0; i < fragment.length; i++) {
       const c = fragment[i];
@@ -54,23 +75,8 @@ export default class Trie {
         break;
       }
       curr = curr.children[c];
-      if (i === fragment.length - 1) {
-        const queue = [];
-        queue.push([curr, fragment]);
-        while (queue.length) {
-          const element = queue.shift();
-          const node = element[0];
-          const word = element[1];
-          if (node.isWord) {
-            result.push(word)
-          }
-          for (const j in node.children) {
-            const child = node.children[j];
-            queue.push([child, word + child.letter]);
-          }
-        }
-      }
     }
-    return result;
+
+    return this.auto(curr, fragment);
   }
 }
